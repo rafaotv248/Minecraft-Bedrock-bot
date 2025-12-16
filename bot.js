@@ -1,24 +1,31 @@
-const bedrock = require('bedrock-protocol')
+const mineflayer = require('mineflayer')
 
-const client = bedrock.createClient({
-  host: 'SavanaCraft.aternos.me', // ex: xxxx.aternos.me
-  port: 53113,
-  username: 'Bot24h',
-  offline: true
+const bot = mineflayer.createBot({
+  host: 'SavanaCraft.aternos.me',     // ex: abc123.aternos.me
+  port: 53113,             // Java = 25565
+  username: 'Bot24h',      // Nick do bot
+  version: false        // MUITO IMPORTANTE
 })
 
-client.on('spawn', () => {
-  console.log('Bot Bedrock online!')
+bot.on('login', () => {
+  console.log('✅ Bot entrou no servidor!')
+})
 
+bot.on('spawn', () => {
+  console.log('🌍 Spawn completo')
+
+  // Anti-AFK
   setInterval(() => {
-    client.queue('move_player', {
-      runtime_entity_id: client.entityId,
-      position: client.position,
-      rotation: { x: 0, y: 0 },
-      on_ground: true
-    })
+    bot.setControlState('jump', true)
+    setTimeout(() => bot.setControlState('jump', false), 500)
   }, 30000)
 })
 
-client.on('disconnect', r => console.log('Disconnect:', r))
-client.on('error', e => console.log('Erro:', e))
+bot.on('end', () => {
+  console.log('❌ Bot caiu, reconectando...')
+  setTimeout(() => process.exit(1), 5000)
+})
+
+bot.on('error', err => {
+  console.log('Erro:', err.message)
+})
